@@ -1,0 +1,26 @@
+const mongoose = require("mongoose");
+
+const FitnessPlanSchema = new mongoose.Schema({
+    userId: String,
+    exercises: Array,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const MealPlanSchema = new mongoose.Schema({
+    userId: String,
+    meals: Array,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const ProgressSchema = new mongoose.Schema({
+    userId: String,
+    weight: Number,
+    bodyFat: Number,
+    createdAt: { type: Date, default: Date.now }
+});
+
+module.exports = {
+    FitnessPlan: mongoose.model("FitnessPlan", FitnessPlanSchema),
+    MealPlan: mongoose.model("MealPlan", MealPlanSchema),
+    Progress: mongoose.model("Progress", ProgressSchema)
+};
