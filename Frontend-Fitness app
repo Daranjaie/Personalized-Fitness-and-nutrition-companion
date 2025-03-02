@@ -1,0 +1,86 @@
+/* Frontend: React (Next.js) */
+
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+export default function Home() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [workouts, setWorkouts] = useState([]);
+  const [meals, setMeals] = useState([]);
+  const [progress, setProgress] = useState(null);
+  
+  useEffect(() => {
+    fetchWorkouts();
+    fetchMeals();
+    fetchProgress();
+  }, []);
+
+  const fetchWorkouts = async () => {
+    const res = await axios.get('http://localhost:5000/api/fitness');
+    setWorkouts(res.data);
+  };
+
+  const fetchMeals = async () => {
+    const res = await axios.get('http://localhost:5000/api/meals');
+    setMeals(res.data);
+  };
+
+  const fetchProgress = async () => {
+    const res = await axios.get(`http://localhost:5000/api/progress/123`); // Replace with user ID
+    setProgress(res.data);
+  };
+
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      setMessage(`Welcome ${res.data.user.name}`);
+    } catch (error) {
+      setMessage('Login failed');
+    }
+  };
+
+  return (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>Fitness & Nutrition Companion</h1>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+      <p>{message}</p>
+      
+      <h2>Workout Plans</h2>
+      <ul>
+        {workouts.map((workout, index) => (
+          <li key={index}>{workout.exercises.map(ex => `${ex.name} - ${ex.reps} reps`).join(', ')}</li>
+        ))}
+      </ul>
+      
+      <h2>Meal Plans</h2>
+      <ul>
+        {meals.map((meal, index) => (
+          <li key={index}>{meal.meals.map(m => `${m.name} - ${m.calories} kcal`).join(', ')}</li>
+        ))}
+      </ul>
+      
+      <h2>Progress Tracking</h2>
+      {progress ? (
+        <p>Weight: {progress.weight}kg | Body Fat: {progress.bodyFatPercentage}% | Workouts Completed: {progress.workoutCompleted}</p>
+      ) : (
+        <p>No progress data available.</p>
+      )}
+    </div>
+  );
+}
